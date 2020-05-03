@@ -20,12 +20,13 @@ const styles = StyleSheet.create({
   },
 });
 
-function HomeScreen() {
+function HomeScreen({ navigation }: any) {
   const dispatch = useDispatch();
   const bleDeviceList = useSelector($bleDeviceList);
 
   const handleScan = () => {
-    dispatch(initScan());
+    navigation.navigate("MyModal");
+    // dispatch(initScan());
   };
   console.log(bleDeviceList);
 

@@ -11,6 +11,9 @@ import {
   BottomNavigation,
   BottomNavigationTab,
   Icon,
+  Text,
+  Button,
+  Layout,
   IconProps,
 } from "@ui-kitten/components";
 
@@ -38,7 +41,7 @@ const BottomTabBar = ({ navigation, state }: BottomTabBarProps) => (
   </BottomNavigation>
 );
 
-function HomeNavigator() {
+function CoreNavigator() {
   return (
     <Tab.Navigator
       initialRouteName="Home"
@@ -51,4 +54,4 @@ function HomeNavigator() {
   );
 }
 
-export default HomeNavigator;
+export default CoreNavigator;
