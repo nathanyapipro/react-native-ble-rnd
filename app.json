@@ -18,14 +18,27 @@
     "ios": {
       "bundleIdentifier": "com.nateorg.ble",
       "buildNumber": "1.0.0",
-      "supportsTablet": false
+      "supportsTablet": false,
+      "icon": "./assets/icon.png",
+      "splash": {
+        "image": "./assets/splash.png",
+        "resizeMode": "contain",
+        "backgroundColor": "#ffffff"
+      }
     },
     "android": {
       "package": "com.nateorg.ble",
-      "versionCode": 1
+      "versionCode": 1,
+      "icon": "./assets/icon.png",
+      "splash": {
+        "image": "./assets/splash.png",
+        "resizeMode": "contain",
+        "backgroundColor": "#ffffff"
+      }
     },
     "packagerOpts": {
       "sourceExts": ["js", "ts", "tsx", "jsx"]
-    }
+    },
+    "entryPoint": "node_modules/expo/AppEntry.js"
   }
 }
