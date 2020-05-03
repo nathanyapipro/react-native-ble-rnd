@@ -2,7 +2,7 @@
   "expo": {
     "name": "ble",
     "slug": "ble",
-    "platforms": ["ios", "android", "web"],
+    "platforms": ["ios"],
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -16,7 +16,13 @@
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
-      "supportsTablet": true
+      "bundleIdentifier": "com.nateorg.ble",
+      "buildNumber": "1.0.0",
+      "supportsTablet": false
+    },
+    "android": {
+      "package": "com.nateorg.ble",
+      "versionCode": 1
     },
     "packagerOpts": {
       "sourceExts": ["js", "ts", "tsx", "jsx"]
