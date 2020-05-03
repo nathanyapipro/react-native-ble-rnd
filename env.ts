@@ -22,4 +22,4 @@ function getEnvVars(env = "") {
   if (env.indexOf("prod") !== -1) return ENV.prod;
 }
 
-export default getEnvVars(Constants.manifest.releaseChannel);
+export default getEnvVars(Constants?.manifest?.releaseChannel);
