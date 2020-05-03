@@ -32,15 +32,18 @@ const BottomTabBar = ({ navigation, state }: BottomTabBarProps) => (
     selectedIndex={state.index}
     onSelect={(index) => navigation.navigate(state.routeNames[index])}
   >
-    <BottomNavigationTab icon={OilIcon} title="Oil" />
-    <BottomNavigationTab icon={HomeIcon} title="Home" />
-    <BottomNavigationTab icon={AccountIcon} title="Account" />
+    <BottomNavigationTab icon={OilIcon} />
+    <BottomNavigationTab icon={HomeIcon} />
+    <BottomNavigationTab icon={AccountIcon} />
   </BottomNavigation>
 );
 
 function HomeNavigator() {
   return (
-    <Tab.Navigator tabBar={(props) => <BottomTabBar {...props} />}>
+    <Tab.Navigator
+      initialRouteName="Home"
+      tabBar={(props) => <BottomTabBar {...props} />}
+    >
       <Tab.Screen name="Oil" component={OilScreen} />
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Account" component={AccountScreen} />
