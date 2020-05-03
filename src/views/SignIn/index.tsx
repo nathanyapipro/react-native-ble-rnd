@@ -1,19 +1,17 @@
 import React, { memo, useEffect } from "react";
 import {
-  Container,
-  Header,
-  Content,
-  Form,
-  Item,
   Input,
   Button,
   Text,
-  Label,
-} from "native-base";
+  Layout,
+  TopNavigation,
+  Divider,
+} from "@ui-kitten/components";
 import { useForm, Controller } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { login, $apiLogin } from "../../states/api";
 import { ApiLoginParams } from "../../api";
+import { StyleSheet } from "react-native";
 import * as yup from "yup";
 
 const schema = yup.object().shape({
@@ -28,6 +26,28 @@ interface FormState {
   email?: string;
   password?: string;
 }
+
+const styles = StyleSheet.create({
+  container: {
+    paddingLeft: 24,
+    paddingRight: 24,
+    flex: 1,
+  },
+  title: {
+    marginTop: 24,
+    marginBottom: 64,
+    textAlign: "center",
+  },
+  input: {
+    marginBottom: 32,
+  },
+  button: {
+    marginTop: 8,
+
+    alignContent: "center",
+    justifyContent: "center",
+  },
+});
 
 function SignInScreen() {
   const dispatch = useDispatch();
@@ -71,35 +91,26 @@ function SignInScreen() {
   }, [error, setError]);
 
   return (
-    <Container>
-      <Content padder>
-        <Form style={{ marginTop: 40, marginRight: 16 }}>
-          <Item floatingLabel style={{ marginBottom: 24 }}>
-            <Label>Email</Label>
-            <Input
-              autoCapitalize="none"
-              onChangeText={(text) => setValue("email", text, true)}
-            />
-          </Item>
-          <Item floatingLabel style={{ marginBottom: 24 }}>
-            <Label>Password</Label>
-            <Input onChangeText={(text) => setValue("password", text, true)} />
-          </Item>
-          <Button
-            style={{
-              marginTop: 40,
-              marginLeft: 16,
-              marginRight: 16,
-              alignContent: "center",
-              justifyContent: "center",
-            }}
-            onPress={handleSubmit(onSubmit)}
-          >
-            <Text>Sign In</Text>
-          </Button>
-        </Form>
-      </Content>
-    </Container>
+    <Layout level="1" style={styles.container}>
+      <TopNavigation title="Airgraft" alignment="center" />
+      <Text category="h3" style={styles.title}>
+        Sign In
+      </Text>
+      <Input
+        style={styles.input}
+        autoCapitalize="none"
+        onChangeText={(text) => setValue("email", text, true)}
+      />
+
+      <Input
+        style={styles.input}
+        onChangeText={(text) => setValue("password", text, true)}
+      />
+
+      <Button style={styles.button} onPress={handleSubmit(onSubmit)}>
+        Sign In
+      </Button>
+    </Layout>
   );
 }
 

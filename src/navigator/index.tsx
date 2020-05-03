@@ -14,7 +14,7 @@ function Navigator() {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator>
+      <Stack.Navigator headerMode="none">
         {isAuthenticated ? (
           <>
             <Stack.Screen name="Main" component={MainNavigator} />
