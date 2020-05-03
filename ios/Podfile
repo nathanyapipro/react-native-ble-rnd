@@ -37,6 +37,7 @@ target 'ble' do
   pod 'Folly', :podspec => "#{rnPrefix}/third-party-podspecs/Folly.podspec"
 
   # Other native modules
+  pod 'react-native-ble-plx', :path => '../node_modules/react-native-ble-plx'
 
   # Automatically detect installed unimodules
   use_unimodules!

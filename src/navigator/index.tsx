@@ -15,15 +15,15 @@ function Navigator() {
   return (
     <NavigationContainer>
       <Stack.Navigator headerMode="none">
-        {isAuthenticated ? (
-          <>
-            <Stack.Screen name="Main" component={MainNavigator} />
-          </>
-        ) : (
+        {/* {isAuthenticated ? ( */}
+        <>
+          <Stack.Screen name="Main" component={MainNavigator} />
+        </>
+        {/* ) : (
           <>
             <Stack.Screen name="SignIn" component={SignInScreen} />
           </>
-        )}
+        )} */}
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -194,21 +194,34 @@ const apiSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder.addCase(login.pending, (state, action) => {
-      state.login.status = RequestStatus.FETCHING;
-      state.login.error = undefined;
+      return {
+        ...state,
+        login: {
+          ...state.login,
+          status: RequestStatus.FETCHING,
+          error: undefined,
+        },
+      };
     });
     builder.addCase(login.fulfilled, (state, action) => {
-      state.login.status = RequestStatus.SUCCESS;
-      // const { id, uuid, email } = action.payload;
-      // Sentry.setUser({
-      //   id: `${id}`,
-      //   uuid,
-      //   email,
-      // });
+      return {
+        ...state,
+        login: {
+          ...state.login,
+          status: RequestStatus.SUCCESS,
+          error: undefined,
+        },
+      };
     });
     builder.addCase(login.rejected, (state, action) => {
-      state.login.status = RequestStatus.FAILURE;
-      state.login.error = action.payload;
+      return {
+        ...state,
+        login: {
+          ...state.login,
+          status: RequestStatus.FAILURE,
+          error: action.payload,
+        },
+      };
     });
     // builder.addCase(register.pending, (state) => {
     //   state.register.status = RequestStatus.FETCHING;

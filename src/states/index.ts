@@ -21,21 +21,19 @@ import ENV from "../../env";
 import rootReducer, { RootState } from "./rootReducer";
 // import ApolloClient from "apollo-client";
 // import { NormalizedCacheObject } from "apollo-cache-inmemory";
+import { BleManager, BleError } from "react-native-ble-plx";
 
 let megalithUrl = ENV?.megalithUrl;
 
 export type AppState = RootState;
-export type AppDispatch = ThunkDispatch<
-  any,
-  {
-    apiClient: Api.ApiClient;
-  },
-  AnyAction
-> &
+export type AppDispatch = ThunkDispatch<any, ThunkExtraArgument, AnyAction> &
   Dispatch<AnyAction>;
+
+const bleManager = new BleManager();
 
 export interface ThunkExtraArgument {
   apiClient: Api.ApiClient;
+  bleManager: BleManager;
   // apolloClient: ApolloClient<NormalizedCacheObject>;
 }
 
@@ -82,9 +80,11 @@ export function initStore() {
       // getDefaultMiddleware needs to be called with the state type
       ...getDefaultMiddleware({
         serializableCheck: false,
+        immutableCheck: false,
         thunk: {
           extraArgument: {
             apiClient,
+            bleManager,
             // apolloClient: Apollo.client,
           },
         },

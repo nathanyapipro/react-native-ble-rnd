@@ -1,6 +1,7 @@
 import { combineReducers } from "@reduxjs/toolkit";
 import authReducer from "./auth";
 import apiReducer from "./api";
+import bleReducer from "./ble";
 // import cacheReducer from "./cache";
 // import modalReducer from "./modal";
 // import podReducer from "./pod";
@@ -9,6 +10,7 @@ import apiReducer from "./api";
 const rootReducer = combineReducers({
   api: apiReducer,
   auth: authReducer,
+  ble: bleReducer,
   // cache: cacheReducer,
   // modal: modalReducer,
   // pod: podReducer,

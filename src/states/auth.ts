@@ -32,12 +32,18 @@ const authSlice = createSlice({
       ...initialState,
     }));
     builder.addCase(login.fulfilled, (state, action) => {
-      state.profile = action.payload;
-      state.token = action.payload.appToken;
+      return {
+        ...state,
+        profile: action.payload,
+        token: action.payload.appToken,
+      };
     });
     builder.addCase(login.rejected, (state, action) => {
-      state.profile = undefined;
-      state.token = undefined;
+      return {
+        ...state,
+        profile: undefined,
+        token: undefined,
+      };
     });
     // builder.addCase(register.fulfilled, (state, action) => {
     //   state.profile = action.payload;
