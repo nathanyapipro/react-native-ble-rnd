@@ -28,6 +28,16 @@ export type AppDispatch = ThunkDispatch<any, ThunkExtraArgument, AnyAction> &
   Dispatch<AnyAction>;
 
 const bleManager = new BleManager();
+// {
+// restoreStateIdentifier: "ble-app-background",
+// restoreStateFunction: function (restoredState) {
+//   if (restoredState == null) {
+//     // BleManager was constructed for the first time.
+//   } else {
+//     // BleManager was restored. Check `restoredState.connectedPeripherals` property.
+//   }
+// },
+// }
 
 export interface ThunkExtraArgument {
   apiClient: Api.ApiClient;
@@ -58,7 +68,7 @@ export function initStore() {
     key: rootPresistStorageKey,
     storage,
     whitelist: ["auth"],
-    // stateReconciler: autoMergeLevel2,
+    stateReconciler: autoMergeLevel2,
     // version: 0,
     // migrate: createMigrate(persistMigrations, {
     //   debug: process.env.NODE_ENV !== "production",

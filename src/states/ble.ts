@@ -6,7 +6,7 @@ import {
 } from "@reduxjs/toolkit";
 import { AppState, AppDispatch, ThunkExtraArgument, AppThunk } from ".";
 
-import { State, Device, BleError } from "react-native-ble-plx";
+import { State as BleStatus, Device, BleError } from "react-native-ble-plx";
 
 const UUID_DEFAULT_SERVER = "1f9fac00-65bc-3bbd-3f47-841f6a8bcdd8";
 
@@ -19,14 +19,14 @@ export enum ConnectionStatus {
 }
 
 type BleState = {
-  bleStatus: State;
+  bleStatus: BleStatus;
   nearbyDevices: Device[];
   connectedDevice?: Device;
   connectionStatus: ConnectionStatus;
 };
 
 const initialState: BleState = {
-  bleStatus: State.Unknown,
+  bleStatus: BleStatus.Unknown,
   nearbyDevices: [],
   connectedDevice: undefined,
   connectionStatus: ConnectionStatus.DISCONNECTED,
@@ -61,7 +61,7 @@ export const scan = createAsyncThunk<
   async (_, { dispatch, extra, rejectWithValue, getState }) => {
     const { ble } = getState();
 
-    if (ble.bleStatus === State.PoweredOn && !ble.connectedDevice) {
+    if (ble.bleStatus === BleStatus.PoweredOn && !ble.connectedDevice) {
       dispatch(updateConnectionStatus(ConnectionStatus.DISCOVERING));
       extra.bleManager.startDeviceScan(
         [
@@ -130,9 +130,9 @@ const bleSlice = createSlice({
   initialState,
   reducers: {
     reset: () => initialState,
-    updateBleStatus: (state, action: PayloadAction<State>) => {
+    updateBleStatus: (state, action: PayloadAction<BleStatus>) => {
       const bleStatus = action.payload;
-      if (bleStatus === State.PoweredOff) {
+      if (bleStatus === BleStatus.PoweredOff) {
         return {
           ...initialState,
           bleStatus,
