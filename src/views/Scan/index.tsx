@@ -12,11 +12,14 @@ import {
 } from "@ui-kitten/components";
 import { useDispatch, useSelector } from "react-redux";
 import { scan, $ble, connectDevice, ConnectionStatus } from "../../states/ble";
-import { Device } from "react-native-ble-plx";
+import { Device, State as BleStatus } from "react-native-ble-plx";
 import { StyleSheet, View } from "react-native";
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+  },
+  list: {
     flex: 1,
   },
   loading: {
@@ -40,17 +43,20 @@ const CloseIcon = (props: IconProps) => (
 
 function ScanScreen({ navigation }: any) {
   const dispatch = useDispatch();
-  const { nearbyDevices, connectionStatus } = useSelector($ble);
+  const { nearbyDevices, connectionStatus, bleStatus } = useSelector($ble);
 
   useEffect(() => {
     dispatch(scan());
   }, []);
 
   useEffect(() => {
-    if (connectionStatus === ConnectionStatus.CONNECTED) {
+    if (
+      connectionStatus === ConnectionStatus.CONNECTED ||
+      bleStatus === BleStatus.PoweredOff
+    ) {
       handleClose();
     }
-  }, [connectionStatus]);
+  }, [connectionStatus, bleStatus]);
 
   const handleClose = () => {
     navigation.goBack();
@@ -89,6 +95,7 @@ function ScanScreen({ navigation }: any) {
       />
       <Layout style={styles.container}>
         <List
+          style={styles.list}
           data={nearbyDevices}
           ItemSeparatorComponent={Divider}
           renderItem={renderItem}
