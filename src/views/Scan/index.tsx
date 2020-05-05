@@ -8,15 +8,29 @@ import {
   Icon,
   IconProps,
   TopNavigationAction,
+  Spinner,
 } from "@ui-kitten/components";
 import { useDispatch, useSelector } from "react-redux";
 import { scan, $ble, connectDevice, ConnectionStatus } from "../../states/ble";
 import { Device } from "react-native-ble-plx";
-import { StyleSheet } from "react-native";
+import { StyleSheet, View } from "react-native";
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  loading: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(255,255,255,0.8)",
+    display: "flex",
+    flex: 1,
+    zIndex: 10,
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
 
@@ -41,11 +55,16 @@ function ScanScreen({ navigation }: any) {
   const handleClose = () => {
     navigation.goBack();
   };
+  const isLoading = connectionStatus === ConnectionStatus.CONNECTING;
 
   const renderRightActions = () => {
     return (
       <React.Fragment>
-        <TopNavigationAction icon={CloseIcon} onPress={handleClose} />
+        <TopNavigationAction
+          icon={CloseIcon}
+          onPress={handleClose}
+          disabled={isLoading}
+        />
       </React.Fragment>
     );
   };
@@ -74,6 +93,11 @@ function ScanScreen({ navigation }: any) {
           ItemSeparatorComponent={Divider}
           renderItem={renderItem}
         />
+        {isLoading && (
+          <View style={styles.loading}>
+            <Spinner />
+          </View>
+        )}
       </Layout>
     </>
   );
