@@ -10,44 +10,31 @@ import {
   ListItemProps,
 } from "@ui-kitten/components";
 import { useDispatch, useSelector } from "react-redux";
-import { initScan, $bleDeviceList } from "../../states/ble";
+import { $ble, ConnectionStatus } from "../../states/ble";
 import { Device } from "react-native-ble-plx";
 import { StyleSheet } from "react-native";
 
 const styles = StyleSheet.create({
-  button: {
-    marginTop: 8,
+  layout: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
 
 function HomeScreen({ navigation }: any) {
-  const dispatch = useDispatch();
-  const bleDeviceList = useSelector($bleDeviceList);
-
+  const { connectionStatus } = useSelector($ble);
   const handleScan = () => {
-    navigation.navigate("MyModal");
-    // dispatch(initScan());
-  };
-  console.log(bleDeviceList);
-
-  const renderItem = ({ item, index }: { item: Device; index: number }) => {
-    const { name, id } = item;
-    return <ListItem title={`${name}`} description={`${id}`} />;
+    navigation.navigate("Scan");
   };
 
   return (
     <>
       <TopNavigation title="Airgraft" alignment="center" />
-      <Layout style={{ flex: 1 }}>
-        <Button style={styles.button} onPress={handleScan}>
-          Scan
-        </Button>
-        <List
-          // style={styles.container}
-          data={bleDeviceList}
-          ItemSeparatorComponent={Divider}
-          renderItem={renderItem}
-        />
+      <Layout style={styles.layout}>
+        {connectionStatus !== ConnectionStatus.CONNECTED && (
+          <Button onPress={handleScan}>Scan</Button>
+        )}
       </Layout>
     </>
   );

@@ -8,7 +8,7 @@ import { AppState, AppDispatch, ThunkExtraArgument, AppThunk } from ".";
 
 import { State, Device, BleError } from "react-native-ble-plx";
 
-enum ConnectionStatus {
+export enum ConnectionStatus {
   DISCONNECTED = "DISCONNECTED",
   CONNECTING = "CONNECTING",
   DISCOVERING = "DISCOVERING",
@@ -17,53 +17,24 @@ enum ConnectionStatus {
 }
 
 type BleState = {
-  bleState: State;
-  // activeError: null,
-  // activeSensorTag: null,
-  bleDeviceList: Device[];
+  bleStatus: State;
+  nearbyDevices: Device[];
   connectedDevice?: Device;
   connectionStatus: ConnectionStatus;
 };
 
 const initialState: BleState = {
-  bleState: State.Unknown,
-  bleDeviceList: [],
+  bleStatus: State.Unknown,
+  nearbyDevices: [],
   connectedDevice: undefined,
-  // activeError: null,
-  // activeSensorTag: null,
   connectionStatus: ConnectionStatus.DISCONNECTED,
 };
 
-// export const initScan = (): AppThunk => async (dispatch, getState, {bleManager}) => {
-//   try {
-//     const repoDetails = await getRepoDetails(org, repo)
-//     dispatch(getRepoDetailsSuccess(repoDetails))
-//   } catch (err) {
-//     dispatch(getRepoDetailsFailed(err.toString()))
-//   }
-// }
-
-export const initScan = createAsyncThunk<
-  any,
-  undefined,
-  {
-    dispatch: AppDispatch;
-    state: AppState;
-    extra: ThunkExtraArgument;
-    rejectValue: any;
-  }
->(
-  "ble/initScan",
-  // if you type your function argument here
-  async (input, { dispatch, extra, rejectWithValue }) => {
-    const subscription = extra.bleManager.onStateChange((state) => {
-      if (state === State.PoweredOn) {
-        dispatch(scan());
-        subscription.remove();
-      }
-    }, true);
-  }
-);
+export const bleInit = (): AppThunk => async (dispatch, _, { bleManager }) => {
+  bleManager.onStateChange((state) => {
+    dispatch(updateStatus(state));
+  }, true);
+};
 
 export const scan = createAsyncThunk<
   any,
@@ -77,23 +48,23 @@ export const scan = createAsyncThunk<
 >(
   "ble/scan",
   // if you type your function argument here
-  async (input, { dispatch, extra, rejectWithValue }) => {
-    // dispatch(updateConnectionStatus(ConnectionStatus.DISCOVERING));
-    extra.bleManager.startDeviceScan(null, null, (error, device) => {
-      if (error) {
-        console.log(error);
-        // return rejectWithValue(error);
-      }
-      if (device !== null) {
-        dispatch(addBleDevice(device));
-      }
-    });
+  async (_, { dispatch, extra, rejectWithValue, getState }) => {
+    const { ble } = getState();
+
+    if (ble.bleStatus === State.PoweredOn && !ble.connectedDevice) {
+      dispatch(updateConnectionStatus(ConnectionStatus.DISCOVERING));
+      extra.bleManager.startDeviceScan(null, null, (error, device) => {
+        if (error) {
+          console.log(error);
+          // return rejectWithValue(error);
+        }
+        if (device !== null) {
+          dispatch(addNearbyDevice(device));
+        }
+      });
+    }
   }
 );
-
-interface ConnectDeviceParams {
-  device: Device;
-}
 
 export const connectDevice = createAsyncThunk<
   Device,
@@ -113,19 +84,15 @@ export const connectDevice = createAsyncThunk<
     return device
       .connect()
       .then((device) => {
-        dispatch(updateConnectionStatus(ConnectionStatus.DISCOVERING));
+        const subscription = device.onDisconnected((error) => {
+          dispatch(disconnectDevice());
+          subscription.remove();
+        });
         let characteristics = device.discoverAllServicesAndCharacteristics();
         return characteristics;
       })
-      .then((device) => {
-        // dispatch(changeStatus("Setting Notifications"));
-        return device;
-      })
       .then(
         (device) => {
-          updateConnectionStatus(ConnectionStatus.CONNECTED);
-          // dispatch(changeStatus("Listening"));
-          dispatch(connectedDevice(device));
           return device;
         },
         (error) => {
@@ -136,34 +103,17 @@ export const connectDevice = createAsyncThunk<
   }
 );
 
-// export const login = createAsyncThunk<
-//   Api.ApiLoginResponse,
-//   Api.ApiLoginParams,
-//   {
-//     dispatch: AppDispatch;
-//     state: AppState;
-//     extra: ThunkExtraArgument;
-//     rejectValue: MegalithError;
-//   }
-// >(
-//   "api/login",
-//   // if you type your function argument here
-//   async (input, { extra, rejectWithValue }) => {
-//     try {
-//       console.log(input);
-//       return await extra.apiClient.login(input);
-//     } catch (err) {
-//       // Sentry.captureException(err);
-//       return rejectWithValue(err.response.data);
-//     }
-//   }
-// );
-
 const bleSlice = createSlice({
   name: "ble",
   initialState,
   reducers: {
     reset: () => initialState,
+    updateStatus: (state, action: PayloadAction<State>) => {
+      return {
+        ...state,
+        bleStatus: action.payload,
+      };
+    },
     updateConnectionStatus: (
       state,
       action: PayloadAction<ConnectionStatus>
@@ -173,10 +123,10 @@ const bleSlice = createSlice({
         connectionStatus: action.payload,
       };
     },
-    addBleDevice: (state, action: PayloadAction<Device>) => {
+    addNearbyDevice: (state, action: PayloadAction<Device>) => {
       const device = action.payload;
       if (
-        state.bleDeviceList.some((item) => item.id === device.id) ||
+        state.nearbyDevices.some((item) => item.id === device.id) ||
         !device.isConnectable ||
         device.name === null
       ) {
@@ -184,33 +134,39 @@ const bleSlice = createSlice({
       } else {
         return {
           ...state,
-          bleDeviceList: [...state.bleDeviceList, device],
+          nearbyDevices: [...state.nearbyDevices, device],
         };
       }
     },
-    connectedDevice: (state, action: PayloadAction<Device>) => {
+    disconnectDevice: (state) => {
       return {
         ...state,
-        connectedDevice: action.payload,
+        connectedDevice: undefined,
+        connectionStatus: ConnectionStatus.DISCONNECTED,
       };
     },
   },
   extraReducers: (builder) => {
-    // builder.addCase(login.pending, (state, action) => {
-    //   state.login.status = RequestStatus.FETCHING;
-    //   state.login.error = undefined;
-    // });
+    builder.addCase(connectDevice.fulfilled, (state, action) => {
+      return {
+        ...state,
+        connectedDevice: action.payload,
+        connectionStatus: ConnectionStatus.CONNECTED,
+        nearbyDevices: [],
+      };
+    });
   },
 });
 
 export const {
   reset,
+  updateStatus,
   updateConnectionStatus,
-  addBleDevice,
-  connectedDevice,
+  addNearbyDevice,
+  disconnectDevice,
 } = bleSlice.actions;
 
 export const $ble = (state: AppState) => state.ble;
-export const $bleDeviceList = (state: AppState) => state.ble.bleDeviceList;
+export const $bleDeviceList = (state: AppState) => state.ble.nearbyDevices;
 
 export default bleSlice.reducer;

@@ -22,6 +22,7 @@ import rootReducer, { RootState } from "./rootReducer";
 // import ApolloClient from "apollo-client";
 // import { NormalizedCacheObject } from "apollo-cache-inmemory";
 import { BleManager, BleError } from "react-native-ble-plx";
+import { bleInit } from "./ble";
 
 let megalithUrl = ENV?.megalithUrl;
 
@@ -95,6 +96,8 @@ export function initStore() {
   // const persistor = persistStore(store);
 
   apiClient.setStore(store);
+
+  store.dispatch(bleInit());
 
   return {
     store,

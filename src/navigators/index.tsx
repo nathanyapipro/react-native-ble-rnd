@@ -3,20 +3,11 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import SignInScreen from "../views/SignIn";
 import CoreNavigator from "./CoreNavigator";
+import ScanScreen from "../views/Scan";
 import { useSelector } from "react-redux";
 import { $isAuthenticated } from "../states/auth";
-import { Text, Button, Layout } from "@ui-kitten/components";
 
 const RootStack = createStackNavigator();
-
-function ModalScreen({ navigation }: any) {
-  return (
-    <Layout style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-      <Text style={{ fontSize: 30 }}>This is a modal!</Text>
-      <Button onPress={() => navigation.goBack()}>Dismiss</Button>
-    </Layout>
-  );
-}
 
 function Navigator() {
   const isAuthenticated = useSelector($isAuthenticated);
@@ -34,7 +25,7 @@ function Navigator() {
           </>
         )} */}
         <>
-          <RootStack.Screen name="MyModal" component={ModalScreen} />
+          <RootStack.Screen name="Scan" component={ScanScreen} />
         </>
       </RootStack.Navigator>
     </NavigationContainer>
