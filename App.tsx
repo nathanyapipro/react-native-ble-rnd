@@ -6,17 +6,20 @@ import * as eva from "@eva-design/eva";
 import { EvaIconsPack } from "@ui-kitten/eva-icons";
 import { ApplicationProvider, IconRegistry } from "@ui-kitten/components";
 import { SafeAreaView } from "react-native";
+import { PersistGate } from "redux-persist/integration/react";
 
 export default function App() {
-  const { store } = initStore();
+  const { store, persistor } = initStore();
   return (
     <>
       <IconRegistry icons={EvaIconsPack} />
       <ApplicationProvider {...eva} theme={eva.light}>
         <Provider store={store}>
-          <SafeAreaView style={{ flex: 1 }}>
-            <Navigator />
-          </SafeAreaView>
+          <PersistGate loading={null} persistor={persistor}>
+            <SafeAreaView style={{ flex: 1 }}>
+              <Navigator />
+            </SafeAreaView>
+          </PersistGate>
         </Provider>
       </ApplicationProvider>
     </>
