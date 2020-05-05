@@ -8,6 +8,8 @@ import { AppState, AppDispatch, ThunkExtraArgument, AppThunk } from ".";
 
 import { State, Device, BleError } from "react-native-ble-plx";
 
+const UUID_DEFAULT_SERVER = "1F9FAC00-65BC-3BBD-3F47-841F6A8BCDD8";
+
 export enum ConnectionStatus {
   DISCONNECTED = "DISCONNECTED",
   CONNECTING = "CONNECTING",
@@ -34,6 +36,15 @@ export const bleInit = (): AppThunk => async (dispatch, _, { bleManager }) => {
   bleManager.onStateChange((state) => {
     dispatch(updateStatus(state));
   }, true);
+
+  const connectedDevices = await bleManager.connectedDevices([
+    UUID_DEFAULT_SERVER,
+  ]);
+  console.log(connectedDevices);
+  if (connectedDevices && connectedDevices.length > 0) {
+    const device = connectedDevices[0];
+    dispatch(existingConnectedDevice(device));
+  }
 };
 
 export const scan = createAsyncThunk<
@@ -53,15 +64,21 @@ export const scan = createAsyncThunk<
 
     if (ble.bleStatus === State.PoweredOn && !ble.connectedDevice) {
       dispatch(updateConnectionStatus(ConnectionStatus.DISCOVERING));
-      extra.bleManager.startDeviceScan(null, null, (error, device) => {
-        if (error) {
-          console.log(error);
-          // return rejectWithValue(error);
+      extra.bleManager.startDeviceScan(
+        [
+          // UUID_DEFAULT_SERVER
+        ],
+        null,
+        (error, device) => {
+          if (error) {
+            console.log(error);
+            // return rejectWithValue(error);
+          }
+          if (device !== null) {
+            dispatch(addNearbyDevice(device));
+          }
         }
-        if (device !== null) {
-          dispatch(addNearbyDevice(device));
-        }
-      });
+      );
     }
   }
 );
@@ -138,6 +155,14 @@ const bleSlice = createSlice({
         };
       }
     },
+    existingConnectedDevice: (state, action: PayloadAction<Device>) => {
+      return {
+        ...state,
+        connectedDevice: action.payload,
+        connectionStatus: ConnectionStatus.CONNECTED,
+        nearbyDevices: [],
+      };
+    },
     disconnectDevice: (state) => {
       return {
         ...state,
@@ -162,6 +187,7 @@ export const {
   reset,
   updateStatus,
   updateConnectionStatus,
+  existingConnectedDevice,
   addNearbyDevice,
   disconnectDevice,
 } = bleSlice.actions;
