@@ -8,7 +8,7 @@ import { AppState, AppDispatch, ThunkExtraArgument, AppThunk } from ".";
 
 import { State, Device, BleError } from "react-native-ble-plx";
 
-const UUID_DEFAULT_SERVER = "1F9FAC00-65BC-3BBD-3F47-841F6A8BCDD8";
+const UUID_DEFAULT_SERVER = "1f9fac00-65bc-3bbd-3f47-841f6a8bcdd8";
 
 export enum ConnectionStatus {
   DISCONNECTED = "DISCONNECTED",
@@ -34,13 +34,12 @@ const initialState: BleState = {
 
 export const bleInit = (): AppThunk => async (dispatch, _, { bleManager }) => {
   bleManager.onStateChange((state) => {
-    dispatch(updateStatus(state));
+    dispatch(updateBleStatus(state));
   }, true);
 
   const connectedDevices = await bleManager.connectedDevices([
     UUID_DEFAULT_SERVER,
   ]);
-  console.log(connectedDevices);
   if (connectedDevices && connectedDevices.length > 0) {
     const device = connectedDevices[0];
     dispatch(existingConnectedDevice(device));
@@ -68,13 +67,19 @@ export const scan = createAsyncThunk<
         [
           // UUID_DEFAULT_SERVER
         ],
-        null,
+        {
+          allowDuplicates: false,
+        },
         (error, device) => {
           if (error) {
             console.log(error);
             // return rejectWithValue(error);
           }
-          if (device !== null) {
+          if (
+            device !== null &&
+            device.name !== null &&
+            device.name.startsWith("AG_")
+          ) {
             dispatch(addNearbyDevice(device));
           }
         }
@@ -125,7 +130,14 @@ const bleSlice = createSlice({
   initialState,
   reducers: {
     reset: () => initialState,
-    updateStatus: (state, action: PayloadAction<State>) => {
+    updateBleStatus: (state, action: PayloadAction<State>) => {
+      const bleStatus = action.payload;
+      if (bleStatus === State.PoweredOff) {
+        return {
+          ...initialState,
+          bleStatus,
+        };
+      }
       return {
         ...state,
         bleStatus: action.payload,
@@ -185,7 +197,7 @@ const bleSlice = createSlice({
 
 export const {
   reset,
-  updateStatus,
+  updateBleStatus,
   updateConnectionStatus,
   existingConnectedDevice,
   addNearbyDevice,
