@@ -18,7 +18,7 @@
     "@types/yup": "^0.28.0",
     "@ui-kitten/components": "^5.0.0-alpha.1",
     "@ui-kitten/eva-icons": "^5.0.0-alpha.1",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "expo": "^37.0.0",
     "expo-crypto": "~8.1.0",
     "expo-font": "~8.1.0",
